@@ -16,7 +16,8 @@ class Constants:
 
 class MQPacketStatus(int, Enum):
     Default = 0
-    Sending = auto()
+    Rising = auto()
     Processing = auto()
-    Responding = auto()
+    Falling = auto()
     Finished = auto()
+    Error = auto()
