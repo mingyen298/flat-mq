@@ -4,34 +4,6 @@ from .helper import MQPacketStatus
 import json
 
 
-class _MQPackerSerializer(json.JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__serialize__'):
-            return obj.__serialize__()
-
-        return json.JSONEncoder.default(self, obj)
-
-
-class MQPacketCovert:
-    @staticmethod
-    def serialize(packet) -> str:
-        '''Serialize packet to string'''
-        return json.dumps(packet, cls=_MQPackerSerializer)
-
-    @staticmethod
-    def deserialize(content: str):
-        dict = json.loads(content)
-        packet = MQPacket()
-        packet.id = uuid.UUID(dict.get('id', ''))
-        packet.time = dict.get('time', 0)
-        packet.content = dict.get('content', '')
-        packet.sender_id = uuid.UUID(dict.get('sender_id', ''))
-        packet.source = dict.get('source', '')
-        packet.response = dict.get('response', '')
-        packet.status = MQPacketStatus(dict.get('status'))
-        return packet
-
-
 class MQPacket(object):
     def __init__(self,
                  id=uuid.uuid4(),
@@ -75,3 +47,32 @@ class MQPacket(object):
             "response": self.response,
             "status": MQPacketStatus(self.status)
         }
+
+
+class _MQPackerSerializer(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, '__serialize__'):
+            return obj.__serialize__()
+
+        return json.JSONEncoder.default(self, obj)
+
+
+
+class MQPacketCovert:
+    @staticmethod
+    def serialize(packet:MQPacket) -> str:
+        '''Serialize packet to string'''
+        return json.dumps(packet, cls=_MQPackerSerializer)
+
+    @staticmethod
+    def deserialize(content: str) -> MQPacket:
+        dict = json.loads(content)
+        packet = MQPacket()
+        packet.id = uuid.UUID(dict.get('id', ''))
+        packet.time = dict.get('time', 0)
+        packet.content = dict.get('content', '')
+        packet.sender_id = uuid.UUID(dict.get('sender_id', ''))
+        packet.source = dict.get('source', '')
+        packet.response = dict.get('response', '')
+        packet.status = MQPacketStatus(dict.get('status'))
+        return packet
