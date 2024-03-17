@@ -24,7 +24,7 @@ class MQTxController:
                     del self.__map[packet.id]
                 # 使用這個track跑
                 if not packet.id in self.__map:
-                    self.__map[packet.id] = MQPacketTrack()
+                    self.__map[packet.id] = MQPacketTrack(packet=packet)
                     return self.__map.get(packet.id)
         return None
 
@@ -39,5 +39,3 @@ class MQTxController:
                     p = track.packet
         return p
     
-
-
