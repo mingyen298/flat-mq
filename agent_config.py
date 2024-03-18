@@ -24,9 +24,9 @@ class MQAgentConfigBuilder:
 
     def withOtherAgentID(self, role: str, id: str = "") -> None:
         if id == "":
-            self._other_roles[role] = f'role/{self._role}'
+            self._other_roles[role] = f'role/{role}'
         else:
-            self._other_roles[role] = f'role/{self._role}/{self._id}'
+            self._other_roles[role] = f'role/{role}/{id}'
 
     def withTcpServer(self,host:str , port:int)->None:
         self._config.host = host
@@ -34,7 +34,7 @@ class MQAgentConfigBuilder:
 
     def build(self):
 
-        if id == "":
+        if self._id == "":
             self._config.agent_id = f'{self._role}'
             self._config.listen_topic = f'role/{self._role}'
         else:
@@ -42,7 +42,7 @@ class MQAgentConfigBuilder:
             self._config.listen_topic = f'role/{self._role}/{self._id}'
 
         for role, topic in self._other_roles.items():
-            self._config.listen_topic[role] = topic
+            self._config.send_topics[role] = topic
 
         return self._config
 
