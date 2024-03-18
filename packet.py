@@ -3,8 +3,7 @@ from datetime import datetime
 from .helper import MQPacketStatus
 import json
 
-
-class MQPacket(object):
+class MQPacket:
     def __init__(self,
                  id=uuid.uuid4(),
                  time=int(datetime.utcnow().timestamp()),
@@ -49,7 +48,7 @@ class MQPacket(object):
         }
 
 
-class _MQPackerSerializer(json.JSONEncoder):
+class _MQPacketSerializer(json.JSONEncoder):
     def default(self, obj):
         if hasattr(obj, '__serialize__'):
             return obj.__serialize__()
@@ -58,11 +57,12 @@ class _MQPackerSerializer(json.JSONEncoder):
 
 
 
+
 class MQPacketCovert:
     @staticmethod
     def serialize(packet:MQPacket) -> str:
         '''Serialize packet to string'''
-        return json.dumps(packet, cls=_MQPackerSerializer)
+        return json.dumps(packet, cls=_MQPacketSerializer)
 
     @staticmethod
     def deserialize(content: str) -> MQPacket:
