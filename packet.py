@@ -38,7 +38,7 @@ class MQPacket:
 
     def __serialize__(self):
         return {
-            "id": str(self.sender_id),
+            "id": str(self.id),
             "time": self.time,
             "content": self.content,
             "sender_id": str(self.sender_id),
@@ -71,7 +71,7 @@ class MQPacketCovert:
         packet.id = uuid.UUID(dict.get('id', ''))
         packet.time = dict.get('time', 0)
         packet.content = dict.get('content', '')
-        packet.sender_id = uuid.UUID(dict.get('sender_id', ''))
+        packet.sender_id = dict.get('sender_id', '')
         packet.source = dict.get('source', '')
         packet.response = dict.get('response', '')
         packet.status = MQPacketStatus(dict.get('status'))
