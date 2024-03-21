@@ -164,7 +164,7 @@ class MQAgent(_MQBase):
     async def __onMessageReceived(self, topic, payload, qos):
 
         try:
-            print('RECV MSG:', payload)
+            # print('RECV MSG:', payload)
             packet = MQPacketCovert.deserialize(payload)
 
             if packet.status is MQPacketStatus.Finished:  # response 回來的訊息
@@ -173,6 +173,7 @@ class MQAgent(_MQBase):
             elif packet.status is MQPacketStatus.Rising:  # 剛送到待處理的訊息
                 packet.status = MQPacketStatus.Processing
                 response = self.processContent(content=packet.content)
+                packet.content = ""
                 packet.response = response
                 packet.status = MQPacketStatus.Falling
 

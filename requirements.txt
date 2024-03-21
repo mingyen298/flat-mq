@@ -1,12 +1,3 @@
 asyncio==3.4.3
-docopt==0.6.2
 flat-mq-client @ git+https://github.com/mingyen298/flat-mq-client.git@f1772518a759daa1592da254952ae5afa513e865
-gmqtt==0.6.14
-paho-mqtt==2.0.0
-passlib==1.7.4
-PyYAML==5.4.1
-six==1.16.0
-transitions==0.8.11
-typing_extensions==4.10.0
-uvloop==0.19.0
-websockets==12.0
+

@@ -1,11 +1,9 @@
+import sys
+sys.path.insert(0, sys.path[0]+"/../")
 from flat_mq.agent_config import MQAgentConfigBuilder
-from flat_mq.helper import MQPacketStatus
-from flat_mq.packet import MQPacket
-import uuid
+
 import asyncio
-import os
 import signal
-import time
 from enum import Enum, auto
 
 from flat_mq.agent import MQAgent

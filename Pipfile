@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+asyncio = "==3.4.3"
+docopt = "==0.6.2"
+flat-mq-client = {ref = "f1772518a759daa1592da254952ae5afa513e865", git = "git+https://github.com/mingyen298/flat-mq-client.git"}
+gmqtt = "==0.6.14"
+paho-mqtt = "==2.0.0"
+passlib = "==1.7.4"
+pyyaml = "==5.4.1"
+six = "==1.16.0"
+transitions = "==0.8.11"
+typing-extensions = "==4.10.0"
+uvloop = "==0.19.0"
+websockets = "==12.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
+python_full_version = "3.9.16"
