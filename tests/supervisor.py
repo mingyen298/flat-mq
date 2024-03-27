@@ -1,14 +1,20 @@
 import sys
 sys.path.insert(0, sys.path[0]+"/../")
-from flat_mq.agent_config import MQAgentConfigBuilder,MQAgentConfig
 
-import asyncio
-import signal
-from enum import Enum, auto
-
-from flat_mq.agent import MQAgent
-# gmqtt also compatibility with uvloop
+from flat_mq.agent_config import MQAgentConfigBuilder, MQAgentConfig
 import uvloop
+from pydantic import BaseModel
+from flat_mq.packet import MQPacket
+from flat_mq.agent import MQAgent
+from enum import Enum, auto
+import signal
+import asyncio
+from typing import Any
+
+
+
+# gmqtt also compatibility with uvloop
+
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 STOP = asyncio.Event()
@@ -24,6 +30,31 @@ class Role(str, Enum):
     Worker = auto()
 
 
+class CommandResult( int,Enum):
+    Default = auto()
+    Success = auto()
+    Fail = auto()
+    Error = auto()
+
+
+class CommandType(int,Enum):
+    Default = auto()
+    Apply = auto()
+    Data = auto()
+
+
+class Command(BaseModel):
+
+    type: CommandType = CommandType.Default
+    result: CommandResult = CommandResult.Default
+    msg: str = ""
+    content: str = ""
+
+    def update(self, result=CommandResult.Success, msg="Success"):
+        self.result = result
+        self.msg = msg
+
+
 class Supervisor(MQAgent):
     def __init__(self):
 
@@ -35,12 +66,28 @@ class Supervisor(MQAgent):
         print(config.send_topics)
         super().__init__(agent_config=config)
 
-    async def processContent(self, content: str) -> str:
-        print(content)
-        return "OK"
+    async def processPacket(self, packet: MQPacket) -> Any:
+        resp: Command = None
+        command = Command.parse_raw(packet.content)
 
-    def sendToCoordinator(self, content: str):
-        super().send(role=Role.Coordinator.name, content=content)
+        if command.type == CommandType.Apply:
+            command.update()
+
+        elif command.type == CommandType.Data:
+            command.update(msg="QAQ")
+        else:
+            command.update(result=CommandResult.Fail, msg="Fail")
+
+        resp = command
+        return resp
+
+    async def sendToCoordinator(self, content: str) -> Command:
+        command = Command(type=CommandType.Data,
+                          result=CommandResult.Default,
+                          content=content)
+        return await self.send(role=Role.Coordinator.name,
+                               content_obj=command,
+                               cls=Command)
 
 
 async def main():

@@ -1,5 +1,7 @@
 import uuid
+from typing import Any
 from datetime import datetime
+from pydantic import BaseModel
 from .util import Util
 from .helper import MQPacketStatus
 from .packet import MQPacket, MQPacketCovert
@@ -61,14 +63,14 @@ class MQAgent(_MQBase):
         self._client.subscribe(self._agent_config.listen_topic,
                                qos=0)
 
-    async def processContent(self, content: str) -> str:
-        return ""
+    async def processPacket(self, packet: MQPacket) -> Any:
+        return NotImplementedError
 
-    async def send(self, role: str, content: str) -> str:
+    async def send(self, role: str, content_obj: Any,cls:Any) -> Any:
         result: MQPacket = None
         packet = MQPacket(id=uuid.uuid4(),
                           time=int(datetime.utcnow().timestamp()),
-                          content=content,
+                          content=content_obj.json(),
                           sender_id=self._agent_config.agent_id,
                           source=self._agent_config.listen_topic,
                           status=MQPacketStatus.Rising)
@@ -80,7 +82,7 @@ class MQAgent(_MQBase):
                                   receive_role_topic=topic)
         if result is None:
             return result
-        return result.response
+        return cls.parse_raw(result.response)
 
     async def _send(self, packet: MQPacket, receive_role_topic: str) -> MQPacket:
         result: MQPacket = None
@@ -90,7 +92,7 @@ class MQAgent(_MQBase):
                 return result
 
             msg = MQPacketCovert.serialize(packet=packet)
-
+            
             if self._client == None:
                 return result
             self._client.publish(topic=receive_role_topic,
@@ -104,7 +106,7 @@ class MQAgent(_MQBase):
             result = track.packet
         except:
             print("send error")
-
+        return result
 
     async def _response(self, packet: MQPacket) -> None:
         try:
@@ -176,9 +178,10 @@ class MQAgent(_MQBase):
 
             elif packet.status is MQPacketStatus.Rising:  # 剛送到待處理的訊息
                 packet.status = MQPacketStatus.Processing
-                response = await self.processContent(content=packet.content)
+                response = await self.processPacket(packet=packet.clone())
+                # print(response.json())
                 packet.content = ""
-                packet.response = response
+                packet.response = response.json()
                 packet.status = MQPacketStatus.Falling
 
                 if packet.status is MQPacketStatus.Falling:  # 處理完了，把結果送回去
