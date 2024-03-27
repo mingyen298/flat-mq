@@ -1,3 +1,5 @@
+import uuid
+from datetime import datetime
 from .util import Util
 from .helper import MQPacketStatus
 from .packet import MQPacket, MQPacketCovert
@@ -59,12 +61,14 @@ class MQAgent(_MQBase):
         self._client.subscribe(self._agent_config.listen_topic,
                                qos=0)
 
-    def processContent(self, content: str) -> str:
+    async def processContent(self, content: str) -> str:
         return ""
 
     async def send(self, role: str, content: str) -> str:
         result: MQPacket = None
-        packet = MQPacket(content=content,
+        packet = MQPacket(id=uuid.uuid4(),
+                          time=int(datetime.utcnow().timestamp()),
+                          content=content,
                           sender_id=self._agent_config.agent_id,
                           source=self._agent_config.listen_topic,
                           status=MQPacketStatus.Rising)
@@ -172,7 +176,7 @@ class MQAgent(_MQBase):
 
             elif packet.status is MQPacketStatus.Rising:  # 剛送到待處理的訊息
                 packet.status = MQPacketStatus.Processing
-                response = self.processContent(content=packet.content)
+                response = await self.processContent(content=packet.content)
                 packet.content = ""
                 packet.response = response
                 packet.status = MQPacketStatus.Falling

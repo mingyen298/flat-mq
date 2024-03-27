@@ -12,6 +12,7 @@ setup(
     install_requires=[
         "asyncio==3.4.3",
         "flat-mq-client @ git+https://github.com/mingyen298/flat-mq-client.git@f1772518a759daa1592da254952ae5afa513e865",
+        "pydantic==2.6.4"
 
     ],  
 )

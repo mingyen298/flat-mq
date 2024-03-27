@@ -35,7 +35,7 @@ class Coordinator(MQAgent):
         print(config.send_topics)
         super().__init__(agent_config=config)
 
-    def processContent(self, content: str) -> str:
+    async def processContent(self, content: str) -> str:
         print(content)
         return "OK"
 
